@@ -51,6 +51,7 @@
         }
     </style>
     <script>
+        const price = 500;
         $(document).ready(function () {
             show_order();
         });
@@ -61,10 +62,9 @@
                 url: '/api/mars',
                 data: {},
                 success: function (response) {
-                    alert(response['msg'])
-                    const html = response.data.map(v => `<tr><td>${v.name}</td><td>${v.address}</td><td>${v.size}</td></tr>`)
+                    const html = response.data.map(v => `<tr><td>${v.name}</td><td>${v.address}</td><td>${v.size}</td><td>${parseInt(v.size) * price}</td></tr>`)
                     $(`#list`).append(html)
-                    console.log(response);
+                    console.log(response['msg']);
                 }
             });
         }
@@ -75,13 +75,29 @@
                 address_give: $(`#address`).val(),
                 size_give: $(`#size`).val()
             }
+            if (!body.name_give) {
+                alert("이름을 입력하세요");
+                return;
+            }
+            if (!body.address_give) {
+                alert("주소를 입력하세요");
+                return;
+            }
+            if (!body.size_give) {
+                alert("평수를 선택하세요");
+                return;
+            }
             $.ajax({
                 type: 'POST',
                 url: '/api/mars',
                 data: body,
                 success: function (response) {
-                    alert(response['msg'])
-                    window.location.reload();
+                    console.log(response['msg']);
+                    $('#list').empty();
+                    show_order();
+                    $("#size option:eq(0)").prop("selected", true);
+                    $('#address').val("");
+                    $('#name').val("");
                 }
             });
         }
@@ -108,7 +124,7 @@
         <div class="input-group mb-3">
             <label class="input-group-text" for="size">평수</label>
             <select class="form-select" id="size">
-                <option selected>-- 주문 평수 --</option>
+                <option selected value="">-- 주문 평수 --</option>
                 <option value="10평">10평</option>
                 <option value="20평">20평</option>
                 <option value="30평">30평</option>
@@ -124,6 +140,7 @@
             <th scope="col">이름</th>
             <th scope="col">주소</th>
             <th scope="col">평수</th>
+            <th scope="col">가격</th>
         </tr>
         </thead>
         <tbody id="list">
